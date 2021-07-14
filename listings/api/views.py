@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import generics
 
-# TODO: Create your views here.
+from .models import Home
+from .serializers import GetHomeSerializer
+
+
+class HomeList(generics.ListAPIView):
+	queryset = Home.objects.all()
+	serializer_class = GetHomeSerializer
