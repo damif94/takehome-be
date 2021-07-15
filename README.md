@@ -68,27 +68,109 @@ Provide a link to the source so we can see the original work and any modificatio
 
 
 # Your Notes
-*TODO: Add your documentation here* 
 
-## Time Spent
-*Give us a rough estimate of the time you spent working on this. If you spent time learning in order to do this project please feel free to let us know that too.*
-*This makes sure that we are evaluating your work fairly and in context. It also gives us the opportunity to learn and adjust our process if needed.*
+### Features
+This feature consists of a GET endpoint which allows to list all the data provided from the csv,
+with the posibility of adding filter parameters as `GET` parameters for restricting the data set
+in a convenient way.
+
+* `zillow_price__lt` and `zillow_price__gt` params allow you to filter houses based on the average zillow price
+* `state` allows filtering on the US state the house is in
+* `home__size__lt` and `home__size__gt` params for filtering on the home size.
+* filter for exact matches on `n_bedrooms` and `n_bathrooms` for the number of bedrooms and bathrooms respectively.
+* filter for `house_type` for exact match on house type.
+
+###Design considerations:
+- My first step was on deciding how the models would be (since this will have the most impact on other design decisions that come later).
+  1.  I separated all the data from the csv into three models; `Home`, `Address` and `ZillowInfo`; plus two foreign keys; `zillow_info_fk`: `Home -> ZillowInfo`
+      and `address_fk`: `Home -> Address`.
+  1. `Home` will own all the fields that are intrinsic to the house (even if they were provided by Zillow), except the address.
+  1. `Address` will collect zipcode, state, street and street number (this last two fields were a split from the `address` field in the csv: This model is 
+     standalone and not part of the Home since it may come handy for other entities we may want to represent (thinking of renting whole buildings, 
+     or knowing where our customers live for providing intelligent suggestions)
+  1. `ZillowInfo` will encompass all zillow-specific data for the home they offer. If I understood well, Zillow is a real state marketplace; if we fetched their data for doing data analysis, 
+     it is not hard to imagine we may want to rely on other sources. So a Home could be linked to many "data providers", appart from   Zillow.
+* For the API, this time I decided to create a single GET endpoint which lists all the data fields using standard drf serializers with all the model fields. I also added [django-filters](https://github.com/carltongibson/django-filter/) 
+   as a drf filter backend in order to provide GET lookup params which allow customized filtering on the GET endpoint. Here come some comments:
+  1. I built the api using drf generics because it is easy to get this running, but I am aware that this is not generally suitable
+    for projects in a mature stage (mostly to enable unsupported customizations).
+  2. django-filters seems a good option when simple filters are needed, but the problem is that
+     it would be nice that the api was flexible enough to select the fields it wants to fetch. Putting this all toghether,
+     I think that a GraphQL based solution should do this job very well.
+  3. Also, it could be necessary to add ordering specifications for the fetched data; even on multiple
+     fields. That's why I added indexes on the models where ordering requirement seem plausible. For time limitations,
+     I didn't add ordering capabilities to the django filter class.
+    
+###Testing
+I didn't write tests this time, mainly because of time limitations. For this specific functionality and the way I 
+wrote it (using out-of-the-box solution from trusted third-party packages like drf or django-filters), I may had put a focus on performance 
+tests rather than functional tests.
+
+I think it could be a good idea to add live performance monitoring (maybe with time threshold that trigger alarms) on the queries
+duration. Even that we add performance tests, data in production may be different from that on QA and we could need to add
+new indexes for boosting performance. 
+
+It is also a possibility to use an indexation engine, like ElasticSearch;
+which just would require to keep our data in sync with the one in there. There are some out-of-the-box solutions
+for elasticsearch, like [Swiftype](https://swiftype.com/).
+
+###Documentation
+I added some docstrings for models with non-obvious purposes, and help_text for some of the fields.
+I know that help_texts are intended for model forms, but I also find it handy for some cases (specifing
+the measure unit of some field, e.g.).
+
+In this case the requirements of the "feature" are fully described in the README; I like this approach.
+Also, I normally link the issue to the jira/linear ticket for further referencing; mainly because non-technical employees
+usually participate there and have no access to github.
+
+### Anything else needed to make this production ready?
+This is not ready for production. Here go the reasons:
+1. No db configured. django default in-memory db most of the time is not even suitable for a dev environment 
+   -as far as I recall, it even doesn't enforce pk and fk constraints-.
+2. No authentication backend set. 
+3. Even if this was an open api, we should put some throttling backend to defend from malicious boting which may
+intend to leave our server sending 429's.
+   
 
 ## Assumptions
 *Did you find yourself needing to make assumptions to finish this?*
+
+1. Maybe, I assumed that we where fetching zillow's data for doing automatic business analysis
+which may help our company fix the prices for the homes we rent.
+
+2. That this data endpoints will also be consumed by our web application, which may provide a detailed
+search interface for our users.
+
 *If so, what were they and how did they impact your design/code?*
 
+1. On splitting the zillow csv in two models, one for the home intrinsic data and other for 
+   zillow marketplace data. As I explained before, we could plug new data providers where we could
+   be scrapping data from.
+2. On deciding to allow filtering, and also on creating indexes for performant order-demanding queries.
 
-## Next Steps
-*Provide us with some notes about what you would do next if you had more time.* 
-*Are there additional features that you would want to add? Specific improvements to your code you would make?*
-### Features
 
-### Testing
+### Next Steps
+I think I cover this point all along the previous titles.  
 
-### Anything else needed to make this production ready?
+
+
+### Time Spent
+* I took 20 minutes for reasearch on django-filters, which I knew existed but had never used before.
+* 20 minutes to analyze the data, understand each field; I had to visit Zillow to get more context.
+* 3 hours for pure development and manual testing.
+* 1.5 hours for the readme.
+
 
 
 ## How to Use
 *Provide any end user documentation you think is necessary and useful here*
+
+After following the instruction step 5, you should run the command 
+`python manage.py makemigrations` 
+which will create the data models in the django in-memory database.
+
+You can then follow steps 6 and 7 and setup is complete.
+
+You are ready to test the api using a curl example!
+
 
