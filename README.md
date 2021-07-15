@@ -80,7 +80,7 @@ in a convenient way.
 * filter for exact matches on `n_bedrooms` and `n_bathrooms` for the number of bedrooms and bathrooms respectively.
 * filter for `house_type` for exact match on house type.
 
-###Design considerations:
+### Design considerations:
 - My first step was on deciding how the models would be (since this will have the most impact on other design decisions that come later).
   1.  I separated all the data from the csv into three models; `Home`, `Address` and `ZillowInfo`; plus two foreign keys; `zillow_info_fk`: `Home -> ZillowInfo`
       and `address_fk`: `Home -> Address`.
@@ -101,7 +101,7 @@ in a convenient way.
      fields. That's why I added indexes on the models where ordering requirement seem plausible. For time limitations,
      I didn't add ordering capabilities to the django filter class.
     
-###Testing
+### Testing
 I didn't write tests this time, mainly because of time limitations. For this specific functionality and the way I 
 wrote it (using out-of-the-box solution from trusted third-party packages like drf or django-filters), I may had put a focus on performance 
 tests rather than functional tests.
@@ -114,7 +114,7 @@ It is also a possibility to use an indexation engine, like ElasticSearch;
 which just would require to keep our data in sync with the one in there. There are some out-of-the-box solutions
 for elasticsearch, like [Swiftype](https://swiftype.com/).
 
-###Documentation
+### Documentation
 I added some docstrings for models with non-obvious purposes, and help_text for some of the fields.
 I know that help_texts are intended for model forms, but I also find it handy for some cases (specifing
 the measure unit of some field, e.g.).
@@ -132,7 +132,7 @@ This is not ready for production. Here go the reasons:
 intend to leave our server sending 429's.
    
 
-## Assumptions
+### Assumptions
 *Did you find yourself needing to make assumptions to finish this?*
 
 1. Maybe, I assumed that we where fetching zillow's data for doing automatic business analysis
@@ -151,7 +151,7 @@ search interface for our users.
 
 ### Next Steps
 I think I cover this point all along the previous titles.  
-
+Maybe I could add a more robust parser for the imprort_data which may expect nullables at every field. Same for ZillowInfo models.
 
 
 ### Time Spent
@@ -172,5 +172,7 @@ which will create the data models in the django in-memory database.
 You can then follow steps 6 and 7 and setup is complete.
 
 You are ready to test the api using a curl example!
+
+<img width="1667" alt="Screen Shot 2021-07-14 at 21 37 19" src="https://user-images.githubusercontent.com/29461526/125710402-162ba725-e397-42e3-b030-08bd3377aa8d.png">
 
 
