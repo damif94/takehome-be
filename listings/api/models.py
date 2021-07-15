@@ -44,7 +44,7 @@ class Home(models.Model):
 	n_bedrooms = models.IntegerField()
 	home_size = models.IntegerField(null=True, help_text="the home size measures in square feet")
 	property_size = models.IntegerField(null=True, help_text="the whole property size measures in square feet")
-	home_type = models.CharField(max_length=30, choices=[(type,type) for type in list(HouseType)])
+	home_type = models.CharField(max_length=30, choices=[(type.value,type.value) for type in list(HouseType)])
 	year_built = models.IntegerField(null=True)
 	zillow_info = models.ForeignKey(null=True, on_delete=models.SET_NULL, to=ZillowInfo)
 	address = models.ForeignKey(null=False, on_delete=models.RESTRICT, to=Address)
